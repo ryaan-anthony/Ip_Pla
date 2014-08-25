@@ -42,7 +42,7 @@ class Ip_Pla_Model_Export_Csv extends Mage_Core_Model_Abstract
     ){
         return array(
             'id' => $product->getSku(),
-            'name' => $product->getName().$this->getMakes($product->getId()),
+            'name' => $product->getName(),
             'description' => $product->getDescription(),
             'google_product_category' => $category->getGoogleProductCategory(),
             'product_type' => $category->getProductType(),
@@ -55,32 +55,6 @@ class Ip_Pla_Model_Export_Csv extends Mage_Core_Model_Abstract
             'tax' => 'US:PA:6:n',
             'shipping_weight' => $product->getWeight(),
         );
-    }
-
-    protected function getMakes($product_id)
-    {
-        $read = Mage::getSingleton('core/resource')->getConnection('core_read');
-        $result = $read->query("
-            SELECT DISTINCT make.title as make FROM elite_mapping as e
-            join elite_level_make as make
-            on make.id = e.make_id
-            where e.entity_id = '{$product_id}'
-        ");
-        $makes = array();
-        $rows = $result->fetch();
-        foreach($rows as $row){
-            $makes[] = $row;
-        }
-        if(count($makes) == 3){
-            return ' - For '.$makes[0].', '.$makes[1].', and '.$makes[2];
-        }
-        if(count($makes) == 2){
-            return ' - For '.$makes[0].' and '.$makes[1];
-        }
-        if(count($makes) == 1){
-            return ' - For '.$makes[0];
-        }
-        return '';
     }
 
     protected function getHeadRowValues()
