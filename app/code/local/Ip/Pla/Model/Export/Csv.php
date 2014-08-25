@@ -15,7 +15,15 @@ class Ip_Pla_Model_Export_Csv extends Mage_Core_Model_Abstract
         $this->writeHeadRow($fp);
         foreach ($category->getProductCollection() as $product){
             $product = $product->load($product->getId());
-            $this->writeCsv($category, $product, $fp);
+            if($product->getTypeId() == 'configurable'){
+                $children = Mage::getModel('catalog/product_type_configurable')
+                    ->getUsedProducts(null,$product);
+                foreach($children as $child){
+                    $this->writeCsv($category, $child, $fp, $product->getSku());
+                }
+            } else {
+                $this->writeCsv($category, $product, $fp, null);
+            }
         }
         Mage::app()->setCurrentStore($originalStore->getId());
         fclose($fp);
@@ -30,19 +38,22 @@ class Ip_Pla_Model_Export_Csv extends Mage_Core_Model_Abstract
     protected function writeCsv(
         Mage_Catalog_Model_Category $category,
         Mage_Catalog_Model_Product $product,
-        $fp
+        $fp,
+        $parent = null
     ){
-        $common = $this->getDesignatedValues($category, $product);
+        $common = $this->getDesignatedValues($category, $product, $parent);
         fputcsv($fp, $common, self::DELIMITER, self::ENCLOSURE);
     }
 
     protected function getDesignatedValues(
         Mage_Catalog_Model_Category $category,
-        Mage_Catalog_Model_Product $product
+        Mage_Catalog_Model_Product $product,
+        $parent
     ){
-        return array(
+        $values = array(
             'id' => $product->getSku(),
-            'name' => $product->getName(),
+            'item_group_id' => $parent,
+            'title' => $product->getName(),
             'description' => $product->getDescription(),
             'google_product_category' => $category->getGoogleProductCategory(),
             'product_type' => $category->getProductType(),
@@ -51,10 +62,13 @@ class Ip_Pla_Model_Export_Csv extends Mage_Core_Model_Abstract
             'condition' => 'New',
             'availablility' => $product->getIsSalable() ? 'In Stock' : 'Out of Stock',
             'price' => $product->getFinalPrice(),
-            'brand' => $product->getBrandName(),
             'tax' => $this->getTaxRate($product->getTaxClassId()),
             'shipping_weight' => $product->getWeight(),
         );
+        foreach($this->getAdditionalAttributes() as $attribute_code){
+            $values[$attribute_code] = $product->getAttributeText($attribute_code);
+        }
+        return $values;
     }
 
     protected function getTaxRate($tax_class_id)
@@ -68,22 +82,29 @@ class Ip_Pla_Model_Export_Csv extends Mage_Core_Model_Abstract
         return $storeRequest->getCountryId().":".$region->getCode().":".$rate.":".($tax_class_id == 4 ? 'y' : 'n');
     }
 
+    protected function getAdditionalAttributes()
+    {
+        return explode(',', Mage::getStoreConfig('google/pla/export'));
+    }
+
     protected function getHeadRowValues()
     {
-        return array(
-            'id',
-            'name',
-            'description',
-            'google_product_category',
-            'product_type',
-            'link',
-            'image_link',
-            'condition',
-            'availability',
-            'price',
-            'brand',
-            'tax',
-            'shipping_weight',
+        return array_merge(array(
+                'id',
+                'item_group_id',
+                'title',
+                'description',
+                'google_product_category',
+                'product_type',
+                'link',
+                'image_link',
+                'condition',
+                'availability',
+                'price',
+                'tax',
+                'shipping_weight',
+            ),
+            $this->getAdditionalAttributes()
         );
     }
 
