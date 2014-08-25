@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Ip_Pla>
+            <version>0.1.0</version>
+        </Ip_Pla>
+    </modules>
+    <global>
+        <blocks>
+            <pla>
+                <class>Ip_Pla_Block</class>
+            </pla>
+        </blocks>
+        <models>
+            <pla>
+                <class>Ip_Pla_Model</class>
+            </pla>
+        </models>
+        <resources>
+            <pla_setup>
+                <setup>
+                    <module>Ip_Pla</module>
+                    <class>Mage_Core_Model_Resource_Setup</class>
+                </setup>
+            </pla_setup>
+        </resources>
+    </global>
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <Ip_Pla before="Mage_Adminhtml">Ip_Pla_Adminhtml</Ip_Pla>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+</config>
