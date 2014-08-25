@@ -52,9 +52,20 @@ class Ip_Pla_Model_Export_Csv extends Mage_Core_Model_Abstract
             'availablility' => $product->getIsSalable() ? 'In Stock' : 'Out of Stock',
             'price' => $product->getFinalPrice(),
             'brand' => $product->getBrandName(),
-            'tax' => 'US:PA:6:n',
+            'tax' => $this->getTaxRate($product->getTaxClassId()),
             'shipping_weight' => $product->getWeight(),
         );
+    }
+
+    protected function getTaxRate($tax_class_id)
+    {
+        /* @var $calculation Mage_Tax_Model_Calculation */
+        $calculation = Mage::getModel('tax/calculation');
+        $storeRequest = $calculation->getRateOriginRequest(Mage::app()->getStore(Mage_Core_Model_App::DISTRO_STORE_ID))
+            ->setProductClassId($tax_class_id);
+        $region = Mage::getModel('directory/region')->load($storeRequest->getRegionId());
+        $rate = $calculation->getRate($storeRequest);
+        return $storeRequest->getCountryId().":".$region->getCode().":".$rate.":".($tax_class_id == 4 ? 'y' : 'n');
     }
 
     protected function getHeadRowValues()
