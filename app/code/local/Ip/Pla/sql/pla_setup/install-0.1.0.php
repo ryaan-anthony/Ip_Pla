@@ -1,7 +1,6 @@
 <?php
-$installer = new Mage_Catalog_Model_Resource_Setup('core_setup');
-$installer->startSetup();
-$installer->addAttribute('catalog_category', 'google_product_category', array(
+$this->startSetup();
+$this->addAttribute('catalog_category', 'google_product_category', array(
     'type' => 'varchar',
     'label'=> 'Google Product Category',
     'input' => 'text',
@@ -11,7 +10,7 @@ $installer->addAttribute('catalog_category', 'google_product_category', array(
     'user_defined' => true,
     'group' => "General Information"
 ));
-$installer->addAttribute('catalog_category', 'product_type', array(
+$this->addAttribute('catalog_category', 'product_type', array(
     'type' => 'varchar',
     'label'=> 'Google Product Type',
     'input' => 'text',
@@ -21,7 +20,7 @@ $installer->addAttribute('catalog_category', 'product_type', array(
     'user_defined' => true,
     'group' => "General Information"
 ));
-$installer->addAttribute('catalog_category', 'export_trigger', array(
+$this->addAttribute('catalog_category', 'export_trigger', array(
     'input_renderer'    => 'pla/catalog_category_export_renderer',
     'type' => 'int',
     'label'=> 'Export PLA',
@@ -31,4 +30,4 @@ $installer->addAttribute('catalog_category', 'export_trigger', array(
     'user_defined' => true,
     'group' => "General Information"
 ));
-$installer->endSetup();
+$this->endSetup();
