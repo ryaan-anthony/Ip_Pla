@@ -84,7 +84,7 @@ class Ip_Pla_Model_Export_Csv extends Mage_Core_Model_Abstract
 
     protected function getAdditionalAttributes()
     {
-        return explode(',', Mage::getStoreConfig('google/pla/export'));
+        return array_filter(explode(',', Mage::getStoreConfig('google/pla/export')), 'strlen');
     }
 
     protected function getHeadRowValues()
